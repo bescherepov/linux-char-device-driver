@@ -4,7 +4,9 @@
 make
 
 # Установка драйвера
-sudo insmod my_driver.ko
+sudo insmod scdrv.ko
+sudo mknod /dev/scdrv c 102 0
+sudo chmod 777 /dev/scdrv
 
 # Проверка загрузки драйвера
-lsmod | grep my_driver
+lsmod | grep scdrv
