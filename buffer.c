@@ -1,36 +1,15 @@
-#include "libs.h"
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/types.h>
 
 typedef struct
 {
-    uint8_t *data;
+    __u8 *data;
     size_t size;
     size_t head;
     size_t tail;
     size_t bytes_available;
 } ringbuffer;
-
-uint8_t *loopbuffer_read(ringbuffer *buffer, size_t len)
-{
-    uint8_t output[len];
-    for (int i = 0; i < len; i++)
-    {
-        output[i] = buffer->data[i + buffer->tail++];
-        buffer->tail &= buffer->size;
-    }
-    calc_buffer_bytes_available(buffer);
-    return output;
-}
-int loopbuffer_write(ringbuffer *buffer, uint8_t *input)
-{
-    size_t len = sizeof(input) / sizeof(uint8_t);
-    for (int i = 0; i < len; i++)
-    {
-        buffer->data[buffer->head] = input[i];
-        buffer->head &= buffer->size;
-    }
-    calc_buffer_bytes_available(buffer);
-    return 0;
-}
 
 void calc_buffer_bytes_available(ringbuffer *buffer)
 {
@@ -39,6 +18,35 @@ void calc_buffer_bytes_available(ringbuffer *buffer)
     else
         buffer->bytes_available = buffer->head - buffer->tail;
 }
+
+__u8 *loopbuffer_read(ringbuffer *buffer, size_t len)
+{
+    __u8 output[len];
+
+    int i = 0;
+    for (i; i < len; i++)
+    {
+        output[i] = buffer->data[i + buffer->tail++];
+        buffer->tail &= buffer->size;
+    }
+
+    calc_buffer_bytes_available(buffer);
+    return output;
+}
+int loopbuffer_write(ringbuffer *buffer, __u8 *input)
+{
+    size_t len = sizeof(input) / sizeof(__u8);
+    int i = 0;
+    for (i; i < len; i++)
+    {
+        buffer->data[buffer->head] = input[i];
+        buffer->head &= buffer->size;
+    }
+    calc_buffer_bytes_available(buffer);
+    return 0;
+}
+
+
 
 bool is_read_allowed(ringbuffer *buffer, size_t len)
 {
@@ -52,6 +60,6 @@ ringbuffer buffer_init(size_t size)
     buffer.head = 0;
     buffer.tail = 0;
     buffer.bytes_available = 0;
-    buffer.data = kmalloc(sizeof(size_t) * 4 + sizeof(uint8_t) * size, GFP_KERNEL);
+    buffer.data = kmalloc(sizeof(size_t) * 4 + sizeof(__u8) * size, GFP_KERNEL);
     return buffer;
 }
