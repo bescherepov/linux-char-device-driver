@@ -2,15 +2,6 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 
-typedef struct
-{
-    __u8 *data;
-    size_t size;
-    size_t head;
-    size_t tail;
-    size_t bytes_available;
-} ringbuffer;
-
 void calc_buffer_bytes_available(ringbuffer *buffer)
 {
     if (buffer->head < buffer->tail)
@@ -45,8 +36,6 @@ int loopbuffer_write(ringbuffer *buffer, __u8 *input)
     calc_buffer_bytes_available(buffer);
     return 0;
 }
-
-
 
 bool is_read_allowed(ringbuffer *buffer, size_t len)
 {
