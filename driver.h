@@ -38,6 +38,7 @@ typedef struct
 int __init (*scdrv_init)(void);
 void __exit (*scdrv_exit)(void);
 
+// driver file operations
 ssize_t (*scdrv_open)(struct inode *inode, struct file *file);
 ssize_t (*scdrv_release)(struct inode *inode, struct file *file);
 ssize_t (*scdrv_read)(struct file *fd, char *buff, size_t len, loff_t *off);
@@ -55,23 +56,6 @@ scdrv drv = {
 }
 ;
 
-/// @brief Set
-/// @param drv
-/// @return
-bool (*set_buffer_size)(scdrv drv);
-
-int (*get_last_read_op_time)(scdrv drv);
-int (*get_last_write_op_time)(scdrv drv);
-void (*update_last_read_op_time)(scdrv drv);
-void (*update_last_write_op_time)(scdrv drv);
-pid_t (*get_last_read_pid)(scdrv drv);
-uid_t (*get_last_read_uid)(scdrv drv);
-pid_t (*get_last_write_pid)(scdrv drv);
-uid_t (*get_last_write_uid)(scdrv drv);
-void (*update_last_read_pid)(scdrv drv, struct pid *pid);
-void (*update_last_read_uid)(scdrv drv);
-void (*update_last_write_pid)(scdrv drv, struct pid *pid);
-void (*update_last_write_uid)(scdrv drv);
 
 // void set_blocking(scdrv drv, bool should_be_blocked)
 // {
