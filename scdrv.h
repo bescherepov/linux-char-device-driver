@@ -6,7 +6,9 @@
 #include <linux/slab.h>
 
 #define SUCCESS 0
-const char 	*device_name = "scdrv";
+#define SCDRV_DEVICE_NAME "SCDRV"
+#define SCDRV_CLASS_NAME "scdrv_class"
+
 unsigned int major;
 unsigned int minor = 1;
 
@@ -20,5 +22,5 @@ MODULE_LICENSE("GPL v2");
 MODULE_PARM_DESC(bufsize, "Parameter used to set char driver buffer size");
 module_param(bufsize, int, S_IRUGO); // buffer size parameter
 
-int init_module(void); // driver.c
-void cleanup_module(void); // driver.c
+extern int init_module(void); // driver.c
+extern void cleanup_module(void); // driver.c

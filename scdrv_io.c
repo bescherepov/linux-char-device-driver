@@ -1,4 +1,13 @@
 #include "scdrv_io.h"
+
+struct file_operations fops = {
+    .owner = THIS_MODULE,
+    .open = scdrv_fops_open,
+    .release = scdrv_fops_release,
+    .read = scdrv_fops_read,
+    .write = scdrv_fops_write,
+    .unlocked_ioctl = scdrv_ioctl,
+};
 void scdrv_set_blocking(scdrv *drv, bool should_be_blocked)
 {
     // int flags = fcntl(drv.fd, F_GETFL, 0);
@@ -22,17 +31,32 @@ int scdrv_fops_release(struct inode *inode, struct file *file)
 
 ssize_t scdrv_fops_read(struct file *fd, char *buf, size_t len, loff_t *off)
 {
-    
+    printk(KERN_INFO "SCDRV: Applying read file operation. Input data: %s\n", buf);
+    int i = 0;
+    while (i < len-1){
+        copy_to_user(&buf[i], ringbuffer_read(), 1);
+        ringbuffer_read();
+        i++;
+    }
     drv.last_read_time = ktime_get_real();
     drv.last_read_pid = current->pid;
     drv.last_read_uid = current_uid();
-    return copy_to_user(buf, "hi", len);
+    return SUCCESS;
 }
 
 ssize_t scdrv_fops_write(struct file *fd, const char *buf, size_t len, loff_t *off)
 {
-    printk(KERN_INFO "SCDRV: Applying write file operation. Input data: %s\n", buf);
+    printk(KERN_INFO "SCDRV: Applying write file operation. Input data: %d\n", (int)buf[0]);
+    __u8* input = kmalloc(sizeof(__u8), GFP_KERNEL);
+    int i = 0;
+    while (i < len-1){
+        copy_from_user(input, &buf[i], 1);
+        ringbuffer_write(input);
+        i++;
+    }
     drv.last_write_time = ktime_get_real();
+    drv.last_write_pid = current->pid;
+    drv.last_write_uid = current_uid();
     return len;
 }
 
@@ -99,12 +123,3 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     return 0;
 }
 
-// for linux API
-static struct file_operations fops = {
-    .owner = THIS_MODULE,
-    .open = scdrv_fops_open,
-    .release = scdrv_fops_release,
-    .read = scdrv_fops_read,
-    .write = scdrv_fops_write,
-    .unlocked_ioctl = scdrv_ioctl,
-};
