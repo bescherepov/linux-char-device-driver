@@ -11,8 +11,8 @@ echo "-----------------"
 echo "Installing SCDRV..."
 echo "-----------------"
 # Установка драйвера
-sudo rmmod scdrv.ko
-sudo insmod scdrv.ko bufsize="$input"
+sudo rmmod scdrvmod.ko
+sudo insmod scdrvmod.ko bufsize="$input"
 #sudo mknod -m 777 /dev/scdrv0 c 102 0
 
 echo "-----------------"

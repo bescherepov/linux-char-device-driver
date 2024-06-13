@@ -9,10 +9,10 @@ typedef struct {
     long    last_read_time;
 
     pid_t   last_write_pid;
-    uid_t   last_write_uid;
+    kuid_t   last_write_uid;
 
     pid_t   last_read_pid;
-    uid_t   last_read_uid;
+    kuid_t   last_read_uid;
 
 } scdrv;
 
@@ -25,11 +25,11 @@ typedef struct
     int     tail; // index of writing pointer
 } ringbuffer;
 
-__u8		ringbuffer_read(ringbuffer *buffer);
-void		ringbuffer_write(ringbuffer *buffer);
+static __u8		ringbuffer_read(ringbuffer *buffer);
+static void		ringbuffer_write(ringbuffer *buffer, __u8 input);
 
-int bufsize;
-scdrv 		drv;
-ringbuffer 	buffer;
+static int bufsize;
+static scdrv 		drv;
+static ringbuffer 	buffer;
 
 #endif

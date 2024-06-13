@@ -5,13 +5,14 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 
+#define SUCCESS 0
 const char 	*device_name = "scdrv";
 unsigned int major;
 unsigned int minor = 1;
 
-struct cdev scdrv_cdev;
-struct class *scdrv_cdev_class;
-dev_t 		dev;
+struct cdev 	scdrv_cdev;
+struct class 	*scdrv_cdev_class;
+dev_t dev;
 
 MODULE_AUTHOR("Bogdan Bescherepov");
 MODULE_DESCRIPTION("Simple char driver (scdrv)");
