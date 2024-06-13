@@ -3,12 +3,14 @@
 #include <linux/cdev.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/slab.h>
 
 const char 	*device_name = "scdrv";
 unsigned int major;
 unsigned int minor = 1;
 
 struct cdev scdrv_cdev;
+struct class *scdrv_cdev_class;
 dev_t 		dev;
 
 MODULE_AUTHOR("Bogdan Bescherepov");
