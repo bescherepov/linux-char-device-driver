@@ -13,13 +13,13 @@ echo "-----------------"
 # Установка драйвера
 sudo rmmod scdrvmod.ko
 sudo insmod scdrvmod.ko bufsize="$input"
-#sudo mknod -m 777 /dev/scdrv0 c 102 0
+sudo chmod 666 /dev/scdrv*
 
 echo "-----------------"
 echo "System logs about SCDRV"
 echo "-----------------"
 # Проверка загрузки драйвера
-dmesg | grep SCDRV
+dmesg | tail | grep SCDRV
 lsmod | grep scdrv
 
 echo "-----------------"
