@@ -15,7 +15,7 @@
 
 `echo abc > /dev/scdrv0`
 
-`echo cat /dev/scdrv0`
+`cat /dev/scdrv0`
 
 ## Проверка работоспособности драйвера
 `ls /dev/scdrv0`
