@@ -1,61 +1,72 @@
+#include "scdrv.h"
 
-#include <linux/module.h>
-#include <linux/types.h>
-#include <linux/kernel.h>
-#include <linux/cdev.h>
-
-#include "driver.c"
-
-unsigned int major;
-const unsigned int minor = 1;
-const char *device_name = "scdrv";
-
-struct cdev scdrv_cdev;
-
-dev_t dev;
-size_t buffer_size = 1024;
-    
-int mod_init(void)
+int __init init_module(void)
 {
-    printk(KERN_INFO "Initializing scdrv module\n");
-
-    int rv = alloc_chrdev_region(&dev, 1, minor, device_name);
-    major = MAJOR(dev);
-
-    drv = scdrv_init(buffer_size);
+    printk(KERN_INFO "SCDRV: Initializing scdrv module. Buffer size = %d\n", bufsize);
+    
+    // allocate chardev region for scdrv
+    int rv = alloc_chrdev_region(&dev, 0, 1, SCDRV_NAME);
     if (rv < 0)
     {
-        printk("%s failed with %d\n", "Registering driver", rv);
+        printk(KERN_ERR "SCDRV: %s failed with %d\n", "Allocating char device region", rv);
         return rv;
     }
+    
+    // update local major and minor numbers after dynamic generation
+    major = MAJOR(dev); minor = MINOR(dev);
+    printk(KERN_INFO "SCDRV: Major number = %d, minor = %d\n", major, minor);
 
+
+    // init char device with file operations
     cdev_init(&scdrv_cdev, &fops);
-    scdrv_cdev.owner = THIS_MODULE;
 
+
+    // add new char device
     rv = cdev_add(&scdrv_cdev, dev, 1);
     if (rv < 0)
     {
-        printk(KERN_ERR "Failed to add character device\n");
-        unregister_chrdev_region(dev, 1);
+        printk(KERN_ERR "SCDRV: Failed to add the device to the system\n");
         return rv;
     }
+
+    // create class
+    scdrv_cdev_class = class_create(THIS_MODULE, SCDRV_CLASS_NAME);
+    if (IS_ERR(scdrv_cdev_class))
+    {
+        printk(KERN_ERR "SCDRV: Failed to create class\n");
+        return PTR_ERR(scdrv_cdev_class);
+    }
+
+    // create new device file in system
+    struct device *scdrv_device;
+    scdrv_device = device_create(scdrv_cdev_class, NULL, MKDEV(major, 0), NULL, SCDRV_DEVICE_NAME);
+    if (IS_ERR(scdrv_device))
+    {
+        printk(KERN_ERR "SCDRV: Failed to create device\n");
+        class_destroy(scdrv_cdev_class);
+        return PTR_ERR(scdrv_device);
+    }
+
+    //  setup
+    scdrv_buf.size = bufsize;
+    printk("bufsize = %d\n", scdrv_buf.size);
+    scdrv_buf.head = 0;
+    scdrv_buf.tail = 0;
+    scdrv_buf.data = (char *)kmalloc(sizeof(char) * bufsize, GFP_KERNEL);
+    printk("data %p \n", (void *) scdrv_buf.data);
+    
+
+    printk(KERN_INFO "SCDRV: Successful module initialization\n");
     return 0;
 }
 
-void mod_close(void)
+
+void __exit cleanup_module(void)
 {
-    printk(KERN_INFO "Exiting scdrv module\n");
+    printk("data close %p \n", (void *) scdrv_buf.data);
+    device_destroy(scdrv_cdev_class, dev);
+    class_destroy(scdrv_cdev_class);
     cdev_del(&scdrv_cdev);
-    unregister_chrdev_region(MKDEV(MAJOR(dev), MINOR(dev)), 1);
+    unregister_chrdev_region(dev, 1);
+    printk(KERN_INFO "SCDRV: Closing module\n");
 }
-
-
-
-module_init(mod_init);
-module_exit(mod_close);
-// module_param(buffer_size, __u16, S_IRUGO);
-
-MODULE_AUTHOR("Bogdan Bescherepov");
-MODULE_DESCRIPTION("Simple char driver");
-MODULE_LICENSE("GPL v2");
-MODULE_PARM_DESC(buffer_size, "Buffer size");
