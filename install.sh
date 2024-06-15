@@ -1,29 +1,34 @@
 #!/bin/bash
-echo "-----------------"
+echo "================="
 echo "Building SCDRV..."
-echo "-----------------"
+echo "================="
 # Сборка драйвера
 make
 
 read -p "Enter driver buffer size in bytes (e.g. 1024): " input
 
-echo "-----------------"
+echo "================="
 echo "Installing SCDRV..."
-echo "-----------------"
+echo "================="
 # Установка драйвера
 sudo rmmod scdrvmod.ko
 sudo insmod scdrvmod.ko bufsize="$input"
 sudo chmod 666 /dev/scdrv*
 
-echo "-----------------"
+echo "================="
 echo "System logs about SCDRV"
-echo "-----------------"
+echo "================="
 # Проверка загрузки драйвера
 dmesg | tail | grep SCDRV
 lsmod | grep scdrv
 
-echo "-----------------"
+echo "================="
 echo "Cleaning \"make\" artifacts"
-echo "-----------------"
+echo "================="
 # Очистка папки от артефактов
 make clean
+
+echo "================="
+echo "Done building and installing scdrv module!"
+
+
