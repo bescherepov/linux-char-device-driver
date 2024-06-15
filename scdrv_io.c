@@ -53,8 +53,9 @@ ssize_t scdrv_fops_read(struct file *fd, char *buf, size_t len, loff_t *off)
     *off += bytes_read;
 
     ktime_get_ts64(&last_read_time);
+    const struct cred *cred = current_cred();
     last_read_pid = current->pid;
-    last_read_uid = current->cred->uid.val;
+    last_read_uid = cred->uid.val;
     is_processing = false;
     printk(KERN_INFO "SCDRV: Last read time = %d, pid = %d, uid = %d\n", last_read_time, last_read_pid, last_read_uid);
     return bytes_read;
@@ -82,7 +83,7 @@ ssize_t scdrv_fops_write(struct file *fd, const char *buf, size_t len, loff_t *o
     const struct cred *cred = current_cred();
     last_write_pid = current->pid;
     last_write_uid = cred->uid.val;
-    printk(KERN_INFO "SCDRV: Last write time = %d, pid = %d, uid = %d\n", last_write_time, current->pid, cred->uid.val);
+    printk(KERN_INFO "SCDRV: Last write time = %d, pid = %d, uid = %d\n", last_write_time, last_write_pid, last_write_uid);
     is_processing = false;
     return len;
 }
@@ -90,14 +91,15 @@ ssize_t scdrv_fops_write(struct file *fd, const char *buf, size_t len, loff_t *o
 
 long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
+    if (_IOC_TYPE(cmd) != SCDRV_IOCTL_NUM) return -EINVAL;
     printk(KERN_INFO "SCDRV: ioctl called. cmd = %d\n", cmd);
     switch (cmd)
     {
         // set driver blocking mode
         case SCDRV_IOCTL_SET_IO_BLOCKING:
         {
-            is_blocking = arg;
-            printk(KERN_INFO "SCDRV: Set blocking to %s", is_blocking? "true" : "false");
+            copy_from_user(&is_blocking, (int *) arg, sizeof(is_blocking));
+            printk(KERN_INFO "SCDRV: Set blocking to %s\n", is_blocking? "true" : "false");
             return SUCCESS;
         }
         break;
@@ -106,7 +108,9 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send time of last read operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_TIME:
         {
-            copy_to_user((void *)arg, &last_read_time.tv_sec, sizeof(last_read_time));
+            // printk(KERN_INFO "SCDRV: Last read time = %s\n", last_read_time.tv_sec);
+            long int output;
+            copy_to_user((long int *)arg, &last_read_time, sizeof(last_read_time.tv_sec));
             return SUCCESS;
         }
         break;
@@ -114,7 +118,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send owner's process id of last read operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_PID:
         {
-            copy_to_user((void *)arg, &last_read_pid, sizeof(last_read_pid));
+            copy_to_user((int *)arg, &last_read_pid, sizeof(last_read_pid));
             return SUCCESS;
         }
         break;
@@ -122,7 +126,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send time of last write operation
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_TIME:
         {
-            copy_to_user((void *)arg, &last_write_time, sizeof(last_write_time));
+            copy_to_user((long int *)arg, &last_write_time, sizeof(last_write_time.tv_sec));
             return SUCCESS;
         }
         break;
@@ -153,7 +157,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
         default:
         {
-            return -ENOTTY;
+            return -EINVAL;
         }
     }
     return 0;
