@@ -90,7 +90,7 @@ ssize_t scdrv_fops_write(struct file *fd, const char *buf, size_t len, loff_t *o
 
 long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-    printk(KERN_INFO "SCDRV: ioctl called\n");
+    printk(KERN_INFO "SCDRV: ioctl called. cmd = %d\n", cmd);
     switch (cmd)
     {
         // set driver blocking mode
@@ -106,7 +106,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send time of last read operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_TIME:
         {
-            copy_to_user(&arg, &last_read_time, sizeof(last_read_time));
+            copy_to_user((void *)arg, &last_read_time.tv_sec, sizeof(last_read_time));
             return SUCCESS;
         }
         break;
@@ -114,7 +114,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send owner's process id of last read operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_PID:
         {
-            copy_to_user(&arg, &last_read_pid, sizeof(last_read_pid));
+            copy_to_user((void *)arg, &last_read_pid, sizeof(last_read_pid));
             return SUCCESS;
         }
         break;
@@ -122,7 +122,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send time of last write operation
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_TIME:
         {
-            copy_to_user(&arg, &last_write_time, sizeof(last_write_time));
+            copy_to_user((void *)arg, &last_write_time, sizeof(last_write_time));
             return SUCCESS;
         }
         break;
@@ -130,7 +130,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send owner's process id of last write operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_PID:
         {
-            copy_to_user(&arg, &last_write_pid, sizeof(last_write_pid));
+            copy_to_user((void *)arg, &last_write_pid, sizeof(last_write_pid));
             return SUCCESS;
         }
         break;
@@ -138,7 +138,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send owner's user id of last read operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_UID:
         {
-            copy_to_user(&arg, &last_read_uid, sizeof(last_read_uid));
+            copy_to_user((void *)arg, &last_read_uid, sizeof(last_read_uid));
             return SUCCESS;
         }
         break;
@@ -146,7 +146,7 @@ long scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         // send owner's user id of last write operation 
         case SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_UID:
         {
-            copy_to_user(&arg, &last_write_uid, sizeof(last_write_uid));
+            copy_to_user((void *)arg, &last_write_uid, sizeof(last_write_uid));
             return SUCCESS;
         }
         break;
