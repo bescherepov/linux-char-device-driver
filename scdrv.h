@@ -1,8 +1,8 @@
 #ifndef SCDRV
 #define SCDRV
 
-#include "buffer.h"
-#include "scdrv_io.h"
+#include "buffer.h" // ringbuffer
+#include "scdrv_io.h" // fops, ioctl
 #include <linux/cdev.h>
 #include <linux/kernel.h>
 #include <linux/module.h>

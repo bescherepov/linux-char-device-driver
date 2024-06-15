@@ -13,7 +13,7 @@ typedef struct
     int     tail; // index of writing pointer
 } ringbuffer;
 
-extern int bufsize;
+extern int bufsize; // set by parameter during module load command
 extern ringbuffer scdrv_buf;
 
 extern char ringbuffer_read(void); // read byte of data
