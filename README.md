@@ -47,10 +47,15 @@
 В папке test_programs имеются программы test_read.c, test_ioctl.c, test_write.c для проверки работоспособности драйвера
 
 `gcc test_write.c -o write`
+
 `gcc test_read.c -o read`
+
 `gcc test_ioctl.c -o ioctl`
+
 `./write`
+
 `./read`
+
 `./ioctl`
 
 Установку блокирующего режима можно отследить через dmesg
