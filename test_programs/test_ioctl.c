@@ -1,21 +1,28 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <time.h>
 #include <sys/types.h>
 
-#define     SCDRV_IOCTL_SET_IO_BLOCKING 				1
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_TIME 	2
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_PID 	3
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_TIME 	4
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_PID 	5
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_UID 	6
-#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_UID 	7
+#define 	SCDRV_IOCTL_NUM 0x11
+
+#define     SCDRV_IOCTL_SET_IO_BLOCKING 				_IOW(SCDRV_IOCTL_NUM, 1, bool)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_TIME 	_IOR(SCDRV_IOCTL_NUM, 2, long int)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_PID 	_IOR(SCDRV_IOCTL_NUM, 3, int)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_TIME 	_IOR(SCDRV_IOCTL_NUM, 4, long int)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_PID 	_IOR(SCDRV_IOCTL_NUM, 5, int)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_READ_UID 	_IOR(SCDRV_IOCTL_NUM, 6, int)
+#define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_UID 	_IOR(SCDRV_IOCTL_NUM, 7, int)
 
 int main(int argc, char* argv[])
 {
-	int fd = open("/dev/scdrv0", S_IRUSR | S_IWUSR);
+	int fd = open("/dev/scdrv0", O_RDONLY);
+	if (fd == -1){
+		printf("scdrv not opened");
+		return -1;
+	}
 	long int read_time;
 	long int write_time;
 	pid_t   last_write_pid;
@@ -43,5 +50,6 @@ int main(int argc, char* argv[])
 
 	ioctl(fd, SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_UID, &last_write_uid);
 	printf("Last scdrv write uid: %d\n", last_write_uid);
+	close(fd);
 
 }
