@@ -1,18 +1,18 @@
 #include "scdrv_io.h"
 
 struct file_operations fops = {
-    .owner = THIS_MODULE,
-    .open = scdrv_fops_open,
-    .release = scdrv_fops_release,
-    .read = scdrv_fops_read,
-    .write = scdrv_fops_write,
+    .owner =    THIS_MODULE,
+    .open =     scdrv_fops_open,
+    .release =  scdrv_fops_release,
+    .read =     scdrv_fops_read,
+    .write =    scdrv_fops_write,
     .unlocked_ioctl = scdrv_ioctl,
 };
 
-bool is_blocking = true;
-bool is_processing = false;
-struct timespec64 last_write_time = (struct timespec64){0,0};
-struct timespec64 last_read_time = (struct timespec64){0,0};
+int     is_blocking = true;
+bool    is_processing = false;
+struct  timespec64 last_write_time = (struct timespec64){0,0};
+struct  timespec64 last_read_time = (struct timespec64){0,0};
 pid_t   last_write_pid = 0;
 uid_t   last_write_uid = 0;
 pid_t   last_read_pid = 0;

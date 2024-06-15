@@ -24,25 +24,25 @@
 #define     SCDRV_IOCTL_BUFFER_ACCESS_LAST_WRITE_UID 	_IOR(SCDRV_IOCTL_NUM, 7, int)
 
 // driver file operations
-extern int 	scdrv_fops_open(struct inode *inode, struct file *file);
-extern int 	scdrv_fops_release(struct inode *inode, struct file *file);
-extern ssize_t scdrv_fops_read(struct file *fd, char *buff, size_t len, loff_t *off);
-extern ssize_t scdrv_fops_write(struct file *fd, const char *buff, size_t len, loff_t *off);
+extern int 		scdrv_fops_open(struct inode *inode, struct file *file);
+extern int 		scdrv_fops_release(struct inode *inode, struct file *file);
+extern ssize_t 	scdrv_fops_read(struct file *fd, char *buff, size_t len, loff_t *off);
+extern ssize_t 	scdrv_fops_write(struct file *fd, const char *buff, size_t len, loff_t *off);
 
-extern struct timespec64 last_write_time;
-extern struct timespec64 last_read_time;
+extern struct 	timespec64 last_write_time; // time of last write operation
+extern struct 	timespec64 last_read_time; // time of last read operation
 
-extern pid_t   last_write_pid;
-extern uid_t   last_write_uid;
+extern pid_t   	last_write_pid;
+extern uid_t   	last_write_uid;
 
-extern pid_t   last_read_pid;
-extern uid_t   last_read_uid;
+extern pid_t   	last_read_pid;
+extern uid_t   	last_read_uid;
 
-extern bool    is_blocking; // determines whether read/write operations is blocking or not;
-extern bool    is_processing; // indicates whether read/write operation is processing at moment;
+extern int 		is_blocking; // determines whether read/write operations is blocking or not;
+extern bool    	is_processing; // indicates whether read/write operation is processing at moment;
 
 // ioctl
-extern long    scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+extern long    	scdrv_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
 
 extern struct file_operations fops;
 
